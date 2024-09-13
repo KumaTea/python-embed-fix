@@ -97,23 +97,31 @@ def process_assets(work_path: str):
 
 
 def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
+    print(f'Processing Python {py_ver} for {platform}')
     init()
     embed_path = get_embed(py_ver, platform)
     work_path = os.path.join('tmp', py_ver)
 
+    print(f'Unzipping {embed_path} to {work_path}...')
     unzip_embed(embed_path, work_path)
     create_dirs(work_path)
     process_assets(work_path)
 
+    print(f'Packing embeds...')
     filename = f'python-{py_ver}-embed-fix-{platform}.zip'
     out_path = os.path.join('out', filename)
     pack_embed(work_path, out_path)
 
-    ensure_pip(work_path, py_ver)
-    filename = f'python-{py_ver}-embed-pip-{platform}.zip'
-    out_path = os.path.join('out', filename)
-    pack_embed(work_path, out_path)
+    print(f'Ensuring pip...')
+    try:
+        ensure_pip(work_path, py_ver)
+        filename = f'python-{py_ver}-embed-pip-{platform}.zip'
+        out_path = os.path.join('out', filename)
+        pack_embed(work_path, out_path)
+    except Exception as e:
+        print(f'Failed to ensure pip: {e}')
 
+    print(f'Cleaning up...')
     shutil.rmtree(work_path)
 
 
