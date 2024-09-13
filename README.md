@@ -8,10 +8,16 @@ Some people have done awesome efforts to improve that. This project goes one ste
 
 Based on [jtmoon79/PythonEmbed4Win](https://github.com/jtmoon79/PythonEmbed4Win), this project fix the original version and packed them, providing an out-of-the-box experience.
 
-# Usage
+## Usage
 
 Download and unzip from [Releases](https://github.com/KumaTea/python-embed-fix/releases).
 
 Run `python.exe`.
 
 An latest version will be on [https://github.com/KumaTea/python-embed-fix/releases/latest/download/python-latest-embed-fix-amd64.zip].
+
+## Others
+
+Since Python 3.9, another version packed with pip is also available.
+
+Previous versions of Python are currently not provided due to deprecated built-in ssl libraries.
