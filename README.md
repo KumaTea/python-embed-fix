@@ -14,7 +14,7 @@ Download and unzip from [Releases](https://github.com/KumaTea/python-embed-fix/r
 
 Run `python.exe`.
 
-An latest version will be on [https://github.com/KumaTea/python-embed-fix/releases/latest/download/python-latest-embed-fix-amd64.zip].
+The latest version will be [python-latest-embed-fix-amd64.zip](https://github.com/KumaTea/python-embed-fix/releases/latest/download/python-latest-embed-fix-amd64.zip).
 
 ## Others
 
