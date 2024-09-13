@@ -82,25 +82,28 @@ def pack_embed(work_path: str, out_path: str):
                 z.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), work_path))
 
 
-def process_assets(work_path: str, py_ver: str = '3.12.0'):
-    files = os.listdir(work_path)
-    python_pth = [f for f in files if f.startswith('python') and f.endswith('._pth')][0]
-
-    os.remove(os.path.join(work_path, python_pth))
+def process_assets(work_path: str):
     for file in os.listdir('assets'):
         shutil.copy(os.path.join('assets', file), os.path.join(work_path, file))
 
-    os.rename(os.path.join(work_path, 'python._pth'), os.path.join(work_path, python_pth))
+    files = os.listdir(work_path)
+    python_pth_list = [f for f in files if f.startswith('python3') and f.endswith('._pth')]
+    if python_pth_list:
+        python_pth = python_pth_list[0]
+        os.remove(os.path.join(work_path, python_pth))
+        os.rename(os.path.join(work_path, 'python._pth'), os.path.join(work_path, python_pth))
+    else:
+        os.remove(os.path.join(work_path, 'python._pth'))
 
 
 def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
     init()
-    embed_path = get_embed()
+    embed_path = get_embed(py_ver, platform)
     work_path = os.path.join('tmp', py_ver)
 
     unzip_embed(embed_path, work_path)
     create_dirs(work_path)
-    process_assets(work_path, py_ver)
+    process_assets(work_path)
 
     filename = f'python-{py_ver}-embed-fix-{platform}.zip'
     out_path = os.path.join('out', filename)
@@ -115,4 +118,8 @@ def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
 
 
 if __name__ == '__main__':
-    main()
+    for ver in [
+        '3.5.4', '3.6.8', '3.7.9',  # end of life
+        '3.8.10', '3.9.13', '3.10.11', '3.11.9', '3.12.6'
+    ]:
+        main(ver)
