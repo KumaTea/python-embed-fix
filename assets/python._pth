@@ -1,0 +1,8 @@
+# python._pth
+#
+# this file was derived from PythonEmbed4Win.ps1
+.\DLLs
+.\Lib
+.\Scripts
+.
+.\Lib\site-packages
