@@ -6,7 +6,7 @@ However, the docs and usages are ambiguous, making this nice portable version ha
 
 Some people have done awesome efforts to improve that. This project goes one step further.
 
-Based on [jtmoon79/PythonEmbed4Win](https://github.com/jtmoon79/PythonEmbed4Win), this project fix the original version and packed them, providing an out-of-the-box experience.
+Based on [jtmoon79/PythonEmbed4Win](https://github.com/jtmoon79/PythonEmbed4Win), this project fixes the original versions and packs them, providing an out-of-the-box experience.
 
 ## Usage
 
@@ -18,6 +18,5 @@ The latest version will be [python-latest-embed-fix-amd64.zip](https://github.co
 
 ## Others
 
-Since Python 3.9, another version packed with pip is also available.
-
-Previous versions of Python are currently not provided due to deprecated built-in ssl libraries.
+* Since Python 3.9, another version packed with pip is also available. Previous versions of Python are currently not provided due to deprecated built-in ssl libraries.
+* Python drops Windows XP support since **3.5**, and drops Windows 7 support since **3.9**.
