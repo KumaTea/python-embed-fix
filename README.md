@@ -16,6 +16,8 @@ Run `python.exe`.
 
 The latest version will be [python-latest-embed-fix-amd64.zip](https://github.com/KumaTea/python-embed-fix/releases/latest/download/python-latest-embed-fix-amd64.zip).
 
+Fixed zip with pip installed will be  [python-latest-embed-pip-amd64.zip](https://github.com/KumaTea/python-embed-fix/releases/latest/download/python-latest-embed-pip-amd64.zip).
+
 ## Others
 
 * Since Python 3.9, another version packed with pip is also available. Previous versions of Python are currently not provided due to deprecated built-in ssl libraries.
