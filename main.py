@@ -8,6 +8,8 @@ import subprocess
 EMBED_ZIP_URL = 'https://www.python.org/ftp/python/{ver}/{file}'
 GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py'
 GET_PIP_VER_URL = 'https://bootstrap.pypa.io/pip/{ver}/get-pip.py'
+GET_PIP_SUPPORTED_AFTER = 8
+PIP_INDEX = 'https://pypi.org/simple/pip/'
 
 
 def init():
@@ -69,10 +71,54 @@ def unzip_embed(zip_path: str, work_path: str) -> str:
     return work_path
 
 
+def get_whl_link(pkg: str = 'pip') -> tuple[str, str]:
+    pkg_index = f'https://pypi.org/simple/{pkg}/'
+    response = requests.get(pkg_index)
+    lines = response.text.splitlines()
+    pkg_whl_list = []
+    for line in lines:
+        if pkg in line and 'whl' in line and 'href' in line:
+            pkg_whl_list.append(line)
+    latest_pkg_whl = pkg_whl_list[-1]
+    latest_pkg_whl_link = latest_pkg_whl.split('href="')[1].split('"')[0]
+    latest_pkg_whl_name = latest_pkg_whl_link.split('/')[-1].split('#')[0]
+    return latest_pkg_whl_name, latest_pkg_whl_link
+
+
+def get_pkg(pkg: str = 'pip') -> str:
+    pkg_whl_name, pkg_whl_link = get_whl_link(pkg)
+    pkg_whl_path = os.path.join('tmp', pkg_whl_name)
+    if not os.path.isfile(pkg_whl_path):
+        with open(pkg_whl_path, 'wb') as f:
+            f.write(requests.get(pkg_whl_link).content)
+    return pkg_whl_path
+
+
 def ensure_pip(work_path: str, py_ver: str = '3.12.0'):
+    minor_ver = int(py_ver.split('.')[1])
     python_path = os.path.join(work_path, 'python.exe')
     pip_path = get_pip(py_ver)
-    subprocess.run([python_path, pip_path, '--no-warn-script-location'])
+    if minor_ver <= GET_PIP_SUPPORTED_AFTER:
+        pip_whl_path = get_pkg('pip')
+        setuptools_whl_path = get_pkg('setuptools')
+        wheel_whl_path = get_pkg('wheel')
+
+        # https://github.com/pypa/pip/issues/2351#issuecomment-69994524
+        # subprocess.run([python_path, f'{pip_whl_path}/pip', 'install', '--no-index', pip_whl_path])
+        with open(pip_path, 'r') as f:
+            script = f.read()
+        script = script.replace(
+            '["install", "--upgrade", "--force-reinstall"]',
+            f'["install", "--no-index", "{pip_whl_path}", "{setuptools_whl_path}", "{wheel_whl_path}"]',
+            1
+        )
+        tmp_pip_path = os.path.join('tmp', 'get-pip-tmp.py')
+        with open(tmp_pip_path, 'w') as f:
+            f.write(script)
+        subprocess.run([python_path, tmp_pip_path, '--no-warn-script-location'])
+        os.remove(tmp_pip_path)
+    else:
+        subprocess.run([python_path, pip_path, '--no-warn-script-location'])
 
 
 def pack_embed(work_path: str, out_path: str):
@@ -96,6 +142,18 @@ def process_assets(work_path: str):
         os.remove(os.path.join(work_path, 'python._pth'))
 
 
+def test_python(work_path: str):
+    print(f'Testing Python {work_path}...')
+    python_path = os.path.join(work_path, 'python.exe')
+    return subprocess.run([python_path, '-V'])
+
+
+def test_pip(work_path: str):
+    print(f'Testing pip {work_path}...')
+    python_path = os.path.join(work_path, 'python.exe')
+    return subprocess.run([python_path, '-m', 'pip', '-V'])
+
+
 def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
     print(f'Processing Python {py_ver} for {platform}')
     init()
@@ -106,6 +164,7 @@ def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
     unzip_embed(embed_path, work_path)
     create_dirs(work_path)
     process_assets(work_path)
+    test_python(work_path)
 
     print(f'Packing embeds...')
     filename = f'python-{py_ver}-embed-fix-{platform}.zip'
@@ -115,6 +174,7 @@ def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
     print(f'Ensuring pip...')
     try:
         ensure_pip(work_path, py_ver)
+        test_pip(work_path)
         filename = f'python-{py_ver}-embed-pip-{platform}.zip'
         out_path = os.path.join('out', filename)
         pack_embed(work_path, out_path)
@@ -126,8 +186,8 @@ def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
 
 
 if __name__ == '__main__':
-    for ver in [
+    for version in [
         '3.5.4', '3.6.8', '3.7.9',  # end of life
         '3.8.10', '3.9.13', '3.10.11', '3.11.9', '3.12.6'
     ]:
-        main(ver)
+        main(version)
