@@ -4,7 +4,6 @@ import zipfile
 import requests
 import subprocess
 
-
 EMBED_ZIP_URL = 'https://www.python.org/ftp/python/{ver}/{file}'
 GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py'
 GET_PIP_VER_URL = 'https://bootstrap.pypa.io/pip/{ver}/get-pip.py'
@@ -156,6 +155,11 @@ def test_pip(work_path: str):
 
 def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
     print(f'Processing Python {py_ver} for {platform}')
+    filename = f'python-{py_ver}-embed-fix-{platform}.zip'
+    out_path = os.path.join('out', filename)
+    if os.path.isfile(out_path):
+        return print(f'Embed already exists: {out_path}')
+
     init()
     embed_path = get_embed(py_ver, platform)
     work_path = os.path.join('tmp', py_ver)
@@ -167,8 +171,6 @@ def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
     test_python(work_path)
 
     print(f'Packing embeds...')
-    filename = f'python-{py_ver}-embed-fix-{platform}.zip'
-    out_path = os.path.join('out', filename)
     pack_embed(work_path, out_path)
 
     print(f'Ensuring pip...')
@@ -188,6 +190,6 @@ def main(py_ver: str = '3.12.0', platform: str = 'amd64'):
 if __name__ == '__main__':
     for version in [
         '3.5.4', '3.6.8', '3.7.9',  # end of life
-        '3.8.10', '3.9.13', '3.10.11', '3.11.9', '3.12.6'
+        '3.8.10', '3.9.13', '3.10.11', '3.11.9', '3.12.7', '3.13.0'
     ]:
         main(version)
